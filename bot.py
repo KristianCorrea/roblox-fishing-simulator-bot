@@ -179,29 +179,10 @@ def double_click_random_throw():
 def check_full_inv():
     if pyautogui.pixel(*bagFullTextCords) == bagFullTextColor:
         return True
+    return False
 
 
 def sell_inventory():
-    keyboard.press("f")
-    keyboard.release("f")
-    time.sleep(0.10)
-    win32api.SetCursorPos(sellButtonCords)
-    time.sleep(0.10)
-    win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, 1, 1, 0, 0)
-    leftClick()
-    time.sleep(0.10)
-    win32api.SetCursorPos(sellEverthingCords)
-    time.sleep(0.10)
-    win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, 1, 1, 0, 0)
-    leftClick()
-    time.sleep(1)
-    win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, -20, 0, 0, 0)
-    win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, 1, 1, 0, 0)
-    time.sleep(1)
-    leftClick()
-    time.sleep(1)
-    keyboard.press("f")
-    keyboard.release("f")
     time.sleep(0.10)
     keyboard.press("f")
     keyboard.release("f")
@@ -223,7 +204,8 @@ def sell_inventory():
     time.sleep(1)
     keyboard.press("f")
     keyboard.release("f")
-    time.sleep(0.10)
+    time.sleep(1)
+    double_click_random_throw()
 
 
 def fishingBarCheck():
@@ -263,6 +245,7 @@ def main():
         #     counter = get_counter()  # Reset the counter
 
         # Increment fish counter if a fish was detected
+        # TODO: ADD COUNTER to keep track of time spent fishing. Otherwise you get stuck. INCASE SOMETHING WHITE (255,255,255) comes across screen. 
         if fish_found == True:
             print("Fish hooked! Reeling...")
             # while pyautogui.pixel(*monitorFishingPixel) == fishingMeterColor or pyautogui.pixel(*monitorFishingPixel) == fishingGaugeColor:
