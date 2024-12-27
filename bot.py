@@ -32,11 +32,6 @@ bagFullTextColor = (253, 0, 97)  # RED
 sellButtonCords = (1084, 356)
 sellEverthingCords = (1211, 492)
 
-# OLD BUBBLE CHECK
-# bubbleCheckP1 = (436, 192)
-# bubbleCheckP2 = (1527, 856)
-
-sellGamepass = True  # CHANGE TO FALSE IF NO SELL GAMEPASS
 sellGamepass = True  # CHANGE TO FALSE IF NO SELL GAMEPASS
 
 
@@ -44,30 +39,6 @@ sellGamepass = True  # CHANGE TO FALSE IF NO SELL GAMEPASS
 def get_counter():
     counter = 18  # Set the counter to a predefined value
     return counter  # Return the counter value
-
-
-# Function to detect specific air bubbles on the screen based on their color
-# def check_air_bubbles_on_screen():
-#     s = pyautogui.screenshot()  # Capture the current screen as an image
-#     # for x in range(770, 1160):  # Iterate through the horizontal pixel range
-#     #     for y in range(350, 730):  # Iterate through the vertical pixel range
-#     for x in range(
-#         bubbleCheckP1[0], bubbleCheckP2[0]
-#     ):  # Iterate through the horizontal pixel range
-#         for y in range(
-#             bubbleCheckP1[1], bubbleCheckP2[1]
-#         ):  # Iterate through the vertical pixel range
-#             tempvar = False  # Temporary variable to track color matches
-#             for x2 in range(5):  # Check a small horizontal range for consistent color
-#                 if (
-#                     s.getpixel((x + x2, y)) == bubbleColor
-#                 ):  # Verify if the pixel matches the target color
-#                     tempvar = True  # Update the variable if the color matches
-#                 else:
-#                     tempvar = False  # Reset the variable if the color does not match
-#                     break  # Exit the loop as the match is invalid
-#             if tempvar is True:  # If a valid match is found
-#                 return True  # Return True to indicate bubbles are detected
 
 
 def capture_screen():
