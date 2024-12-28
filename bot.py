@@ -8,8 +8,15 @@ import random  # Import random for generating random values
 import win32api, win32con  # Import win32api and win32con for low-level system control
 import pydirectinput  # Import pydirectinput for safer and smoother input simulation
 import math
-import win32gui
-import win32ui
+
+from utils.imitate import (
+    reEquipRod,
+    toggleInventory,
+    leftClick,
+    random_click,
+    random_double_click,
+)
+from utils.BubbleDetector import BubbleDetector
 
 # KC info
 # monitorFishingPixel = 891, 877
@@ -24,15 +31,20 @@ import win32ui
 # bagFullTextCords = (1163, 937)
 fishingGaugeColor = (255, 255, 255)  # WHITE
 fishingMeterColor = (83, 250, 83)  # GREEN
-bubbleColor = (68, 252, 234)  # Define the RGB color code for air bubbles
-monitorFishingPixel = 891, 877
-mouseClickCords = (971, 426)
-bagFullTextCords = (1055, 771)
 bagFullTextColor = (253, 0, 97)  # RED
-sellButtonCords = (1084, 356)
-sellEverthingCords = (1211, 492)
+bubbleColor = (68, 252, 234)  # Define the RGB color code for air bubbles
+monitorFishingPixel = 1330, 1318
+throw_line_coords = (1490, 808)  # Coords of where the player throws fishing line.
+bagFullTextCords = (1590, 1160)
+
+sellButtonCords = (1648, 538)
+sellEverthingCords = (1900, 730)
 
 sellGamepass = True  # CHANGE TO FALSE IF NO SELL GAMEPASS
+
+
+def initFetchCords():
+    toggleInventory()
 
 
 # Function to retrieve a counter value for controlling loop iterations
@@ -41,110 +53,9 @@ def get_counter():
     return counter  # Return the counter value
 
 
-def capture_screen():
-    screen_width = win32api.GetSystemMetrics(win32con.SM_CXSCREEN)
-    screen_height = win32api.GetSystemMetrics(win32con.SM_CYSCREEN)
-
-    hwin = win32gui.GetDesktopWindow()
-    hwindc = win32gui.GetWindowDC(hwin)
-    srcdc = win32ui.CreateDCFromHandle(hwindc)
-    memdc = srcdc.CreateCompatibleDC()
-
-    bmp = win32ui.CreateBitmap()
-    bmp.CreateCompatibleBitmap(srcdc, screen_width, screen_height)
-    memdc.SelectObject(bmp)
-
-    memdc.BitBlt((0, 0), (screen_width, screen_height), srcdc, (0, 0), win32con.SRCCOPY)
-    bits = bmp.GetBitmapBits(True)
-
-    # Clean up resources
-    memdc.DeleteDC()
-    srcdc.DeleteDC()
-    win32gui.ReleaseDC(hwin, hwindc)
-    win32gui.DeleteObject(bmp.GetHandle())
-    return bits, screen_width, screen_height
-
-
 def get_resolution_pyautogui():
     cur_width, cur_height = pyautogui.size()
     return cur_width, cur_height
-
-
-class BubbleDetector:
-    def __init__(self):
-        self.last_detection_time = 0
-        self.detection_cooldown = 2.0  # Cooldown in seconds
-
-    def check_air_bubbles_on_screen(self):
-        """Check for air bubbles with cooldown to prevent multiple detections"""
-        current_time = time.time()
-        if current_time - self.last_detection_time < self.detection_cooldown:
-            return False
-
-        try:
-            bits, screen_width, screen_height = capture_screen()
-
-            chunk_size = 50
-            matches_found = False
-
-            for y in range(0, screen_height - chunk_size, chunk_size):
-                if matches_found:
-                    break
-                for x in range(0, screen_width - chunk_size, chunk_size):
-                    matches = 0
-                    for sample_y in range(y, y + chunk_size, 2):
-                        for sample_x in range(x, x + chunk_size, 2):
-                            pixel_offset = (sample_y * screen_width + sample_x) * 4
-                            if pixel_offset + 2 >= len(bits):
-                                continue
-
-                            b = bits[pixel_offset]
-                            g = bits[pixel_offset + 1]
-                            r = bits[pixel_offset + 2]
-
-                            if (
-                                abs(r - 68) < 2
-                                and abs(g - 252) < 2
-                                and abs(b - 234) < 2
-                            ):
-                                matches += 1
-
-                            if matches >= 3:
-                                self.last_detection_time = current_time
-                                return True
-
-            return False
-
-        except Exception as e:
-            print(f"Error checking bubbles: {e}")
-            return False
-
-
-def leftClick():
-    time.sleep(random.uniform(0.001, 0.005))  # Pause for a short, randomized duration
-    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, 0, 0)  # Simulate mouse press
-    time.sleep(random.uniform(0.001, 0.005))  # Pause for a short, randomized duration
-    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, 0, 0)  # Simulate mouse release
-
-
-# Function to simulate a mouse click at random coordinates within a defined range
-def click_random_throw():
-    x, y = random.randint(mouseClickCords[0], mouseClickCords[0] + 10), random.randint(
-        mouseClickCords[1], mouseClickCords[1] + 10
-    )  # Generate random coordinates
-    x, y = random.randint(mouseClickCords[0], mouseClickCords[0] + 10), random.randint(
-        mouseClickCords[1], mouseClickCords[1] + 10
-    )  # Generate random coordinates
-    # x, y = random.randint(960, 970), random.randint(520, 530)  # Generate random coordinates
-    win32api.SetCursorPos((x, y))  # Move the cursor to the random coordinates
-    leftClick()
-
-
-# Function to simulate a double mouse click at random coordinates within a defined range
-def double_click_random_throw():
-    click_random_throw()  # Perform the first random click
-    time.sleep(random.uniform(0.02, 0.025))  # Add a short delay
-    click_random_throw()  # Perform the second random click
 
 
 def check_full_inv():
@@ -154,10 +65,7 @@ def check_full_inv():
 
 
 def sell_inventory():
-    time.sleep(0.10)
-    keyboard.press("f")
-    keyboard.release("f")
-    time.sleep(0.10)
+    toggleInventory()
     win32api.SetCursorPos(sellButtonCords)
     time.sleep(0.10)
     win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, 1, 1, 0, 0)
@@ -168,15 +76,14 @@ def sell_inventory():
     win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, 1, 1, 0, 0)
     leftClick()
     time.sleep(1)
-    win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, -20, 0, 0, 0)
+    win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, -40, 0, 0, 0)  # FIX THIS
     win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, 1, 1, 0, 0)
     time.sleep(1)
     leftClick()
     time.sleep(1)
-    keyboard.press("f")
-    keyboard.release("f")
-    time.sleep(1)
-    double_click_random_throw()
+    toggleInventory()
+    time.sleep(0.4)
+    random_click(throw_line_coords)
 
 
 def fishingBarCheck():
@@ -216,7 +123,7 @@ def main():
         #     counter = get_counter()  # Reset the counter
 
         # Increment fish counter if a fish was detected
-        # TODO: ADD COUNTER to keep track of time spent fishing. Otherwise you get stuck. INCASE SOMETHING WHITE (255,255,255) comes across screen. 
+        # TODO: ADD COUNTER to keep track of time spent fishing. Otherwise you get stuck. INCASE SOMETHING WHITE (255,255,255) comes across screen.
         if fish_found == True:
             print("Fish hooked! Reeling...")
             # while pyautogui.pixel(*monitorFishingPixel) == fishingMeterColor or pyautogui.pixel(*monitorFishingPixel) == fishingGaugeColor:
@@ -224,7 +131,7 @@ def main():
 
                 if pyautogui.pixel(*monitorFishingPixel) == fishingGaugeColor:
                     print("Reeling Threshold hit! Pulling HARDER!!")
-                    double_click_random_throw()
+                    random_double_click(throw_line_coords)
                 time.sleep(0.005)
 
             # Check if the pixel color at specific coordinates does not match the fishingbar colors
@@ -239,29 +146,28 @@ def main():
                 fish_found = False  # Reset the fish detection flag
                 print("RECASTING...")
                 time.sleep(0.2)
-                double_click_random_throw()  # Perform a double random throw to reset the fishing rod
+                random_double_click(
+                    throw_line_coords
+                )  # Perform a double random throw to reset the fishing rod
 
         # If no fish is detected, check for air bubbles on the screen
         if fish_found == False:
             if bubble_detector.check_air_bubbles_on_screen() == True:
                 print("Detected Bubbles. Attempting to reel.")
-                click_random_throw()  # Perform a random click to reel in the fish
+                random_click(
+                    throw_line_coords
+                )  # Perform a random click to reel in the fish
                 counter = get_counter()  # Reset the counter
                 fish_found = True  # Set the flag indicating a fish is found
 
         # If the counter reaches zero, perform a throw or reel-in action
         print("Waiting for Bubbles. Recasting in: ", counter)
         if counter == 0:
-            time.sleep(0.1)
-            keyboard.press("1")
-            time.sleep(0.1)
-            keyboard.release("1")
-            time.sleep(0.1)
-            keyboard.press("1")
-            time.sleep(0.1)
-            keyboard.release("1")
+            reEquipRod()
             time.sleep(0.5)
-            double_click_random_throw()  # Perform a double random throw to reset the fishing rod
+            random_double_click(
+                throw_line_coords
+            )  # Perform a double random throw to reset the fishing rod
             counter = get_counter()  # Reset the counter
 
         # If the inventory is full, sell fish
