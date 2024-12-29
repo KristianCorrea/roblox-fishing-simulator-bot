@@ -8,6 +8,7 @@ import random  # Import random for generating random values
 import win32api, win32con  # Import win32api and win32con for low-level system control
 import pydirectinput  # Import pydirectinput for safer and smoother input simulation
 import math
+import cv2
 
 from utils.imitate import (
     reEquipRod,
@@ -44,18 +45,36 @@ sellGamepass = True  # CHANGE TO FALSE IF NO SELL GAMEPASS
 
 
 def initFetchCords():
-    toggleInventory()
+    bubble_detector = BubbleDetector()
+    time_out_time = 15
+
+
+    print("Recording initial coords. Please do not touch anything...")
+    time.sleep(0.5)
+    # Perform a double random throw to reset the fishing rod
+    random_double_click(throw_line_coords)
+    # toggleInventory()
+    while(time_out_time != 0):
+        if bubble_detector.check_air_bubbles_on_screen() == True:
+            print("Detected Bubbles. Scanning screen for fishingbar.")
+            random_click(throw_line_coords)
+            # Find the UI element
+            toggleInventory()
+            button_location = pyautogui.locateOnScreen(
+                "scan_assets/sell-button.png", confidence=0.8
+            )
+            if button_location:
+                print(f"Button found at: {button_location}")
+                # Move to the button and click it
+            else:
+                print("Button not found.")
+        time_out_time-=1
 
 
 # Function to retrieve a counter value for controlling loop iterations
 def get_counter():
     counter = 18  # Set the counter to a predefined value
     return counter  # Return the counter value
-
-
-def get_resolution_pyautogui():
-    cur_width, cur_height = pyautogui.size()
-    return cur_width, cur_height
 
 
 def check_full_inv():
@@ -185,4 +204,5 @@ def main():
 
 
 if __name__ == "__main__":
+    initFetchCords()
     main()
