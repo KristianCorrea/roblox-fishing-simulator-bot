@@ -86,7 +86,6 @@ def check_full_inv():
 
 def sell_inventory():
     toggleInventory()
-    toggleInventory()
     win32api.SetCursorPos(sellButtonCords)
     time.sleep(0.10)
     win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, 1, 1, 0, 0)
@@ -98,14 +97,10 @@ def sell_inventory():
     leftClick()
     time.sleep(1)
     win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, -40, 0, 0, 0)  # FIX THIS
-    win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, -40, 0, 0, 0)  # FIX THIS
     win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, 1, 1, 0, 0)
     time.sleep(1)
     leftClick()
     time.sleep(1)
-    toggleInventory()
-    time.sleep(0.4)
-    random_click(throw_line_coords)
     toggleInventory()
     time.sleep(0.4)
     random_click(throw_line_coords)
@@ -149,7 +144,6 @@ def main():
 
         # Increment fish counter if a fish was detected
         # TODO: ADD COUNTER to keep track of time spent fishing. Otherwise you get stuck. INCASE SOMETHING WHITE (255,255,255) comes across screen.
-        # TODO: ADD COUNTER to keep track of time spent fishing. Otherwise you get stuck. INCASE SOMETHING WHITE (255,255,255) comes across screen.
         if fish_found == True:
             print("Fish hooked! Reeling...")
             # while pyautogui.pixel(*monitorFishingPixel) == fishingMeterColor or pyautogui.pixel(*monitorFishingPixel) == fishingGaugeColor:
@@ -157,7 +151,6 @@ def main():
 
                 if pyautogui.pixel(*monitorFishingPixel) == fishingGaugeColor:
                     print("Reeling Threshold hit! Pulling HARDER!!")
-                    random_double_click(throw_line_coords)
                     random_double_click(throw_line_coords)
                 time.sleep(0.005)
 
